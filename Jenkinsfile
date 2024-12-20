@@ -18,7 +18,10 @@ pipeline {
                      def appImage = docker.build("my-spring-boot-app:${BUILD_NUMBER}",".")
 
                      //Ejecuta el contenedor con tu app
-                    docker.image("my-spring-boot-app:${BUILD_NUMBER}").withRun("--net=host -p 8082:8082") {c ->
+                    docker.withRegistry('','docker-hub'){
+                        appImage.push()
+                     }
+                    docker.image("my-spring-boot-app:${BUILD_NUMBER}").withRun("-p 8082:8082") {c ->
                           println "app is up and running, id: ${c.id}"
 
                            sleep 30
