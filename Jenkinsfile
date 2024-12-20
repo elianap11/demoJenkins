@@ -3,19 +3,27 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                // Compila el proyecto
                 sh 'mvn clean package'
             }
         }
         stage('Test') {
             steps {
-                // Ejecuta las pruebas
-                sh 'mvn test'
+               sh 'mvn test'
             }
         }
-        stage('Run') {
-            steps {
-                sh 'java -jar target/demoJenkins-0.0.1-SNAPSHOT.jar'
+        stage('Docker Build') {
+             steps {
+              script{
+                     //Construye la imagen docker
+                     def appImage = docker.build("my-spring-boot-app:${BUILD_NUMBER}",".")
+
+                     //Ejecuta el contenedor con tu app
+                    docker.image("my-spring-boot-app:${BUILD_NUMBER}").withRun("--net=host -p 8082:8082") {c ->
+                          println "app is up and running, id: ${c.id}"
+
+                           sleep 30
+                     }
+                    }
             }
         }
     }
